@@ -1,20 +1,25 @@
-import { BASE_URL } from './const'
-import { getAccessTokenFromLocalStorage, saveAccessTokenToLocalStorage } from '../utils/accessTokenHandler'
-import { UserInfo } from '../types/user'
+import { UserInfo } from "./../types/user";
+import { BASE_URL } from "./const";
+import {
+  getAccessTokenFromLocalStorage,
+  saveAccessTokenToLocalStorage,
+} from "../utils/accessTokenHandler";
 
-type LoginResult = 'success' | 'fail'
+type LoginResult = "success" | "fail";
 
-export type LoginResultWithToken = {
-  result: 'success'
-  access_token: string
-} | {
-  result: 'fail'
-  access_token: null
-}
+export type LoginResultWithToken =
+  | {
+      result: "success";
+      access_token: string;
+    }
+  | {
+      result: "fail";
+      access_token: null;
+    };
 
 export interface LoginRequest {
-  username: string
-  password: string
+  username: string;
+  password: string;
 }
 
 /*********
@@ -26,12 +31,28 @@ export const loginWithToken = async (args: LoginRequest): Promise<LoginResultWit
   // POST, `${ BASE_URL }/auth/login`을 호출하세요.
   // API Spec은 강의 자료를 참고하세요.
   // access_token 발급에 성공한 경우에는 { result: 'success', access_token: string } 형태의 값을 반환하세요.
+  const loginResponse = await fetch(`${BASE_URL}/auth/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(args),
+  });
+
+  const loginResponseData = await loginResponse.json();
+
+  if (loginResponse.ok) {
+    return {
+      result: "success",
+      access_token: loginResponseData.access_token,
+    };
+  }
 
   return {
-    result: 'fail',
-    access_token: null
-  }
-}
+    result: "fail",
+    access_token: null,
+  };
+};
 
 export const getCurrentUserInfoWithToken = async (token: string): Promise<UserInfo | null> => {
   // TODO(2-1): 함수에서 토큰을 직접 주입받아 사용하기
@@ -39,10 +60,18 @@ export const getCurrentUserInfoWithToken = async (token: string): Promise<UserIn
   // argument로 전달받은 token을 Authorization header에 Bearer token으로 넣어주세요.
   // API Spec은 강의 자료를 참고하세요.
   // 유저 정보 조회에 성공한 경우에는 UserInfo 타입의 값을 반환하세요.
+  const loginResult = await fetch(`${BASE_URL}/profile`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
-  return null
-}
+  const loginResultData = await loginResult.json();
 
+  return loginResultData.userInfo;
+};
 
 /*********
  *  실습 2-2
@@ -54,8 +83,8 @@ export const login = async (args: LoginRequest): Promise<LoginResult> => {
   // API Spec은 강의 자료를 참고하세요.
   // access_token 발급에 성공한 경우에는 saveAccessTokenToLocalStorage 함수를 호출하여 access_token을 localStorage에 저장하고 'success'를 반환하세요.
 
-  return 'fail'
-}
+  return "fail";
+};
 
 export const getCurrentUserInfo = async (): Promise<UserInfo | null> => {
   // TODO(2-2): 로컬스토리지에서 토큰을 가져와 사용하기
@@ -64,5 +93,5 @@ export const getCurrentUserInfo = async (): Promise<UserInfo | null> => {
   // API Spec은 강의 자료를 참고하세요.
   // 유저 정보 조회에 성공한 경우에는 UserInfo 타입의 값을 반환하세요.
 
-  return null
-}
+  return null;
+};
