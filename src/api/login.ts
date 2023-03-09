@@ -60,7 +60,7 @@ export const getCurrentUserInfoWithToken = async (token: string): Promise<UserIn
   // argument로 전달받은 token을 Authorization header에 Bearer token으로 넣어주세요.
   // API Spec은 강의 자료를 참고하세요.
   // 유저 정보 조회에 성공한 경우에는 UserInfo 타입의 값을 반환하세요.
-  const loginResult = await fetch(`${BASE_URL}/profile`, {
+  const userInfoRes = await fetch(`${BASE_URL}/profile`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -68,9 +68,11 @@ export const getCurrentUserInfoWithToken = async (token: string): Promise<UserIn
     },
   });
 
-  const loginResultData = await loginResult.json();
+  if (userInfoRes.ok) {
+    return userInfoRes.json() as Promise<UserInfo>;
+  }
 
-  return loginResultData.userInfo;
+  return null;
 };
 
 /*********
